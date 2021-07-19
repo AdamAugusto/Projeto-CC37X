@@ -1,6 +1,8 @@
 # flutter_projeto
 
-A new Flutter project.
+Projeto da disciplina CC37X (Programação de Dispositivos Móveis).
+
+O projeto consiste em um aplicativo mobile para controle de eventos, onde colaboradores podem cadastrar seus eventos e usuários comprar ingressos
 
 ## Getting Started
 
