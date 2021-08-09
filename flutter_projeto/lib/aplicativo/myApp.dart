@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_projeto/paginas/loginPage.dart';
+import 'package:flutter_projeto/widgets/authCheck.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: LoginPage(),
+      home: AuthCheck(),
     );
   }
 }

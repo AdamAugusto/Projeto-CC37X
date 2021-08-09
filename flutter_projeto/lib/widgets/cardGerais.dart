@@ -1,23 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_projeto/modelos/colaborador.dart';
 import 'package:flutter_projeto/modelos/evento.dart';
 import 'package:flutter_projeto/paginas/comprarIngresso.dart';
-import 'package:flutter_projeto/repositotio/colaboradorRepository.dart';
+
 import 'package:flutter_projeto/repositotio/eventosGerais.dart';
 import 'package:intl/intl.dart';
 
 class CardGerais extends StatefulWidget {
   final EventosGerais eventosGerais;
   final Evento evento;
-  final ColaboradorRepositorio repositorio;
-  final Colaborador user;
-  CardGerais(
-      {Key? key,
-      required this.eventosGerais,
-      required this.evento,
-      required this.repositorio,
-      required this.user})
-      : super(key: key);
+
+  CardGerais({
+    Key? key,
+    required this.eventosGerais,
+    required this.evento,
+  }) : super(key: key);
 
   @override
   _CardGerais createState() => _CardGerais();
@@ -30,6 +26,9 @@ class _CardGerais extends State<CardGerais> {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
+      elevation: 5,
+      borderOnForeground: true,
+      shadowColor: Colors.purple[900],
       child: Column(
         children: [
           ListTile(
@@ -39,14 +38,31 @@ class _CardGerais extends State<CardGerais> {
                 fontSize: 26,
               ),
             ),
-            trailing: Icon(Icons.airplane_ticket),
+            trailing: PopupMenuButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.purple,
+              ),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: ListTile(
+                    title: Text('Editar'),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
             contentPadding: EdgeInsets.only(left: 16),
             subtitle: Text(
               'Data: ${widget.evento.data}\n' +
                   '${real.format(widget.evento.preco)}\n' +
                   '${widget.evento.local}\n' +
                   'Disponiveis: ${widget.evento.ingressos}',
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(
+                color: Colors.black,
+              ),
             ),
           ),
           ButtonBar(
@@ -61,8 +77,6 @@ class _CardGerais extends State<CardGerais> {
                           builder: (_) => ComprarIngressoPage(
                                 evento: widget.evento,
                                 repositorioEventos: widget.eventosGerais,
-                                user: widget.user,
-                                repositorioColaborador: widget.repositorio,
                               )),
                     );
                   } else {

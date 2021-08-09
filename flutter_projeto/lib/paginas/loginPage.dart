@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_projeto/paginas/cadastroPage.dart';
 import 'package:flutter_projeto/paginas/esqueciSenhaPage.dart';
 import 'package:flutter_projeto/repositotio/colaboradorRepository.dart';
+import 'package:flutter_projeto/repositotio/eventosGerais.dart';
+import 'package:flutter_projeto/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,13 +18,27 @@ class _LoginPageState extends State<LoginPage> {
   final _login = TextEditingController();
   final _senha = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool flag = false;
+  bool loading = false;
+  late EventosGerais eventosGerais;
+  late ColaboradorRepositorio col;
 
-  late ColaboradorRepositorio colaboradorRepositorio;
+  login() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().login(_login.text, _senha.text);
+    } on AuthExecption catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+    eventosGerais.recuperarComprados();
+    eventosGerais.recuperarMeus();
+    col.recuperaColaborador();
+  }
 
   @override
   Widget build(BuildContext context) {
-    colaboradorRepositorio = Provider.of<ColaboradorRepositorio>(context);
+    eventosGerais = Provider.of<EventosGerais>(context);
+    col = Provider.of<ColaboradorRepositorio>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,123 +48,126 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       resizeToAvoidBottomInset: false,
-      body: Consumer<ColaboradorRepositorio>(
-          builder: (context, colaboradorRepositorio, child) {
-        return Padding(
-          padding: EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _login,
-                  style: TextStyle(fontSize: 22),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Usuário',
-                    prefixIcon: Icon(Icons.login),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) return 'Informe o seu usuário';
+      body: Padding(
+        padding: EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _login,
+                style: TextStyle(fontSize: 22),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'E-mail',
+                  prefixIcon: Icon(Icons.login),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) return 'Informe o seu e-mail';
+                  if (!RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$'%&\*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+([a-zA-Z.]+)*")
+                      .hasMatch(value)) return 'Formato de e-mail inválido';
+                },
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 24),
+              ),
+              TextFormField(
+                obscureText: true,
+                controller: _senha,
+                style: TextStyle(fontSize: 22),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Senha',
+                  prefixIcon: Icon(Icons.password),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) return 'Informe a sua senha';
+                },
+              ),
+              Container(
+                alignment: Alignment(1, 0),
+                width: double.infinity,
+                padding: EdgeInsets.only(top: 10),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => EsqueciSenhaPage()),
+                    );
                   },
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 24),
-                ),
-                TextFormField(
-                  obscureText: true,
-                  controller: _senha,
-                  style: TextStyle(fontSize: 22),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Senha',
-                    prefixIcon: Icon(Icons.password),
+                  child: Text(
+                    'Esqueci minha senha',
+                    style: TextStyle(
+                      color: Colors.blue[600],
+                    ),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) return 'Informe a sua senha';
-                  },
                 ),
-                Container(
-                  alignment: Alignment(1, 0),
-                  width: double.infinity,
-                  padding: EdgeInsets.only(top: 10),
-                  child: TextButton(
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                //width: double.infinity,
+                //padding: EdgeInsets.only(top: 10),
+                children: [
+                  TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => EsqueciSenhaPage()),
+                        MaterialPageRoute(
+                          builder: (_) => CadastroPage(),
+                        ),
                       );
                     },
                     child: Text(
-                      'Esqueci minha senha',
+                      'Não possuo cadastro',
                       style: TextStyle(
                         color: Colors.blue[600],
                       ),
                     ),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  //width: double.infinity,
-                  //padding: EdgeInsets.only(top: 10),
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CadastroPage(
-                              repositorio: colaboradorRepositorio,
+                ],
+              ),
+              Container(
+                alignment: Alignment.bottomCenter,
+                margin: EdgeInsets.only(top: 24),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      login();
+                    }
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: (loading)
+                        ? [
+                            Padding(
+                              padding: EdgeInsets.all(16),
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ]
+                        : [
+                            Icon(Icons.check),
+                            Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                'Login',
+                                style: TextStyle(fontSize: 20),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Não possuo login',
-                        style: TextStyle(
-                          color: Colors.blue[600],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  alignment: Alignment.bottomCenter,
-                  margin: EdgeInsets.only(top: 24),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        flag = colaboradorRepositorio.autentica(_login.text,
-                            _senha.text, context, colaboradorRepositorio);
-                        if (!flag) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('Usuário e/ou senha incorretos')));
-                        } else {
-                          _login.clear();
-                          _senha.clear();
-                        }
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check),
-                        Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
-                            'Login',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ],
-                    ),
+                          ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }

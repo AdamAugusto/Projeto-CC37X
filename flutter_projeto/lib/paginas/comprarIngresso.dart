@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_projeto/modelos/colaborador.dart';
 import 'package:flutter_projeto/modelos/evento.dart';
-import 'package:flutter_projeto/repositotio/colaboradorRepository.dart';
+
 import 'package:flutter_projeto/repositotio/eventosGerais.dart';
 import 'package:intl/intl.dart';
 
 class ComprarIngressoPage extends StatefulWidget {
   final Evento evento;
   final EventosGerais repositorioEventos;
-  final Colaborador user;
-  final ColaboradorRepositorio repositorioColaborador;
 
   ComprarIngressoPage({
     Key? key,
     required this.evento,
     required this.repositorioEventos,
-    required this.user,
-    required this.repositorioColaborador,
   }) : super(key: key);
 
   @override
@@ -50,17 +45,19 @@ class _ComprarIngressoPageState extends State<ComprarIngressoPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Preço: ${real.format(widget.evento.preco)}\n' +
-                      'Data: ${widget.evento.data}\n' +
-                      'Local: ${widget.evento.local}\n' +
-                      'Disponíveis: ${widget.evento.ingressos} ingressos\n' +
-                      'Comprar: $quantidade ingressos',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -1,
-                    color: Colors.grey[800],
+                Flexible(
+                  child: Text(
+                    'Preço: ${real.format(widget.evento.preco)}\n' +
+                        'Data: ${widget.evento.data}\n' +
+                        'Local: ${widget.evento.local}\n' +
+                        'Disponíveis: ${widget.evento.ingressos} ingressos\n' +
+                        'Comprar: $quantidade ingressos',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -1,
+                      color: Colors.grey[800],
+                    ),
                   ),
                 ),
               ],
@@ -124,9 +121,7 @@ class _ComprarIngressoPageState extends State<ComprarIngressoPage> {
             child: ElevatedButton(
               onPressed: () {
                 if (quantidade > 0) {
-                  widget.repositorioEventos
-                      .comprar(widget.evento, quantidade, widget.user);
-
+                  widget.repositorioEventos.comprar(widget.evento, quantidade);
                   Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_projeto/modelos/colaborador.dart';
 
 import 'package:flutter_projeto/paginas/cadastrarEventoPage.dart';
-import 'package:flutter_projeto/repositotio/colaboradorRepository.dart';
-import 'package:flutter_projeto/repositotio/eventosMeus.dart';
-import 'package:flutter_projeto/repositotio/eventosComprados.dart';
+
 import 'package:flutter_projeto/repositotio/eventosGerais.dart';
+import 'package:flutter_projeto/services/auth_service.dart';
 import 'package:flutter_projeto/widgets/cardGerais.dart';
 import 'package:flutter_projeto/widgets/cardIngressos.dart';
 import 'package:flutter_projeto/widgets/cardMeus.dart';
@@ -13,11 +11,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomePageColaborador extends StatefulWidget {
-  final ColaboradorRepositorio repositorio;
-  final Colaborador user;
-
-  HomePageColaborador({Key? key, required this.repositorio, required this.user})
-      : super(key: key);
+  HomePageColaborador({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _HomePageColaboradorState createState() => _HomePageColaboradorState();
@@ -27,18 +23,10 @@ class _HomePageColaboradorState extends State<HomePageColaborador> {
   NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
 
   late EventosGerais eventosGerais;
-  late EventosMeus eventosMeus;
-  late EventosComprados eventosComprados;
 
   @override
   Widget build(BuildContext context) {
     eventosGerais = Provider.of<EventosGerais>(context);
-    eventosComprados = Provider.of<EventosComprados>(context);
-    eventosMeus = Provider.of<EventosMeus>(context);
-    eventosComprados.recuperarComprados(
-        eventosGerais.tabelaGerais, widget.user);
-
-    eventosMeus.recuperarMeus(eventosGerais.tabelaGerais, widget.user);
 
     return DefaultTabController(
       length: 3,
@@ -53,13 +41,14 @@ class _HomePageColaboradorState extends State<HomePageColaborador> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CadastrarEventoPage(
-                          evento: eventosGerais,
-                          repositorio: widget.repositorio,
-                          user: widget.user),
+                      builder: (_) =>
+                          CadastrarEventoPage(evento: eventosGerais),
                     ),
                   );
                 }),
+            IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: () => context.read<AuthService>().logout()),
           ],
           bottom: TabBar(
             indicatorColor: Colors.white,
@@ -78,42 +67,41 @@ class _HomePageColaboradorState extends State<HomePageColaborador> {
                   //1
                   itemBuilder: (BuildContext context, int evento) {
                     return CardGerais(
-                        eventosGerais: eventosGerais,
-                        evento: eventosGerais.tabelaGerais[evento],
-                        repositorio: widget.repositorio,
-                        user: widget.user);
+                      eventosGerais: eventosGerais,
+                      evento: eventosGerais.tabelaGerais[evento],
+                    );
                   },
                   separatorBuilder: (_, __) => Divider(),
                   itemCount: eventosGerais.tabelaGerais.length,
                 );
               },
             ),
-            Consumer<EventosComprados>(
+            Consumer<EventosGerais>(
               builder: (context, eventosComprados, child) {
                 return ListView.separated(
                   //2
                   itemBuilder: (BuildContext context, int evento) {
                     return CardIngressos(
-                        evento: eventosComprados.tabelaComprados[evento]);
+                        evento: eventosGerais.tabelaComprados[evento]);
                   },
                   separatorBuilder: (_, __) => Divider(),
-                  itemCount: eventosComprados.tabelaComprados.length,
+                  itemCount: eventosGerais.tabelaComprados.length,
                 );
               },
             ),
             Container(
-              child:
-                  Consumer<EventosMeus>(builder: (context, eventosMeus, child) {
+              child: Consumer<EventosGerais>(
+                  builder: (context, eventosMeus, child) {
                 return ListView.separated(
                   //3
                   itemBuilder: (BuildContext context, int evento) {
                     return CardMeus(
-                      evento: eventosMeus.tabelaMeus[evento],
+                      evento: eventosGerais.tabelaMeus[evento],
                       eventosGerais: eventosGerais,
                     );
                   },
                   separatorBuilder: (_, __) => Divider(),
-                  itemCount: eventosMeus.tabelaMeus.length,
+                  itemCount: eventosGerais.tabelaMeus.length,
                 );
               }),
             ),

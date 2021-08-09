@@ -43,15 +43,6 @@ class _CardMeusState extends State<CardMeus> {
                     },
                   ),
                 ),
-                PopupMenuItem(
-                  child: ListTile(
-                    title: Text('Remover'),
-                    onTap: () {
-                      widget.eventosGerais.remover(widget.evento);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
               ],
             ),
             contentPadding: EdgeInsets.only(left: 16),

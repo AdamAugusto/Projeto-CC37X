@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_projeto/modelos/colaborador.dart';
-import 'package:flutter_projeto/repositotio/colaboradorRepository.dart';
+import 'package:flutter_projeto/paginas/continuaCadastroPage.dart';
+import 'package:flutter_projeto/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class CadastroPage extends StatefulWidget {
-  final ColaboradorRepositorio repositorio;
-
-  CadastroPage({Key? key, required this.repositorio}) : super(key: key);
+  CadastroPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _CadastroPageState createState() => _CadastroPageState();
@@ -13,7 +15,6 @@ class CadastroPage extends StatefulWidget {
 
 class _CadastroPageState extends State<CadastroPage> {
   bool checked = false;
-  final _login = TextEditingController();
   final _email = TextEditingController();
   final _email2 = TextEditingController();
   final _senha = TextEditingController();
@@ -23,7 +24,27 @@ class _CadastroPageState extends State<CadastroPage> {
   final _conta = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _nome = TextEditingController();
-  late bool flag;
+  bool loading = false;
+
+  registrar() async {
+    setState() => loading = true;
+    try {
+      await context.read<AuthService>().registrar(_email.text, _senha.text);
+    } on AuthExecption catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  login() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().login(_email.text, _senha.text);
+    } on AuthExecption catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +63,6 @@ class _CadastroPageState extends State<CadastroPage> {
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(
-                  controller: _login,
-                  style: TextStyle(fontSize: 22),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Login',
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) return 'Informe o login';
-                  },
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 8),
-                ),
                 TextFormField(
                   controller: _nome,
                   style: TextStyle(fontSize: 22),
@@ -209,60 +216,58 @@ class _CadastroPageState extends State<CadastroPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        if (checked) {
-                          flag = false;
-                          widget.repositorio.lista.forEach((user) {
-                            if (user.login == _login.text) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Este login já existe')));
-                              flag = true;
-                            }
-                          });
-                          if (!flag) {
-                            widget.repositorio.novoCadastro(Colaborador.real(
-                                nome: _nome.text,
-                                login: _login.text,
-                                senha: _senha.text,
-                                agencia: _agencia.text,
-                                operacao: _operacao.text,
-                                conta: _conta.text,
-                                colaborador: true));
-                            Navigator.pop(context);
-                          }
+                        registrar();
+
+                        login();
+                        if (!checked) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ContinuaCadastroPage(
+                                    colaborador:
+                                        Colaborador(nome: _nome.text))),
+                          );
                         } else {
-                          flag = false;
-                          widget.repositorio.lista.forEach((user) {
-                            if (user.login == _login.text) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Este login já existe')));
-                              flag = true;
-                            }
-                          });
-                          if (!flag) {
-                            widget.repositorio.novoCadastro(Colaborador(
-                              nome: _nome.text,
-                              login: _login.text,
-                              senha: _senha.text,
-                            ));
-                            Navigator.pop(context);
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ContinuaCadastroPage(
+                                  colaborador: Colaborador.real(
+                                      nome: _nome.text,
+                                      agencia: _agencia.text,
+                                      operacao: _operacao.text,
+                                      conta: _conta.text,
+                                      colaborador: true)),
+                            ),
+                          );
                         }
                       }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check),
-                        Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
-                            'Registrar',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ],
+                      children: (loading)
+                          ? [
+                              Padding(
+                                padding: EdgeInsets.all(16),
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            ]
+                          : [
+                              Icon(Icons.check),
+                              Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text(
+                                  'Registrar',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ],
                     ),
                   ),
                 ),

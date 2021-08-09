@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_projeto/modelos/colaborador.dart';
 import 'package:flutter_projeto/modelos/evento.dart';
-import 'package:flutter_projeto/repositotio/colaboradorRepository.dart';
 import 'package:flutter_projeto/repositotio/eventosGerais.dart';
+import 'package:flutter_projeto/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class CadastrarEventoPage extends StatefulWidget {
   final EventosGerais evento;
-  final ColaboradorRepositorio repositorio;
-  final Colaborador user;
 
-  CadastrarEventoPage(
-      {Key? key,
-      required this.evento,
-      required this.repositorio,
-      required this.user})
-      : super(key: key);
+  CadastrarEventoPage({
+    Key? key,
+    required this.evento,
+  }) : super(key: key);
 
   @override
   _CadastrarEventoPageState createState() => _CadastrarEventoPageState();
@@ -135,15 +131,17 @@ class _CadastrarEventoPageState extends State<CadastrarEventoPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
+                        AuthService auth = context.read<AuthService>();
                         widget.evento.adicionar(
                           Evento(
-                              nome: _nomeEvento.text,
-                              data: _data.text,
-                              local: _localEvento.text,
-                              ingressos: int.parse(_ingresso.text),
-                              ingressosIniciais: int.parse(_ingresso.text),
-                              preco: double.parse(_preco.text),
-                              criador: widget.user),
+                            nome: _nomeEvento.text,
+                            data: _data.text,
+                            local: _localEvento.text,
+                            ingressos: int.parse(_ingresso.text),
+                            ingressosIniciais: int.parse(_ingresso.text),
+                            preco: double.parse(_preco.text),
+                            criador: auth.usuario!.email!,
+                          ),
                         );
                         Navigator.pop(context);
                       }
