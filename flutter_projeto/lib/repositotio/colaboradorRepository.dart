@@ -10,6 +10,7 @@ class ColaboradorRepositorio extends ChangeNotifier {
   late Colaborador colaborador;
   late FirebaseFirestore db;
   late AuthService auth;
+  bool iniciado = false;
 
   //get colaborador => _colaborador;
 
@@ -31,6 +32,7 @@ class ColaboradorRepositorio extends ChangeNotifier {
   }
 
   _recuperaColaborador() async {
+    iniciado = false;
     if (auth.usuario != null) {
       final snapShot =
           await db.collection('usuario/${auth.usuario!.uid}/dados').get();
@@ -48,6 +50,7 @@ class ColaboradorRepositorio extends ChangeNotifier {
           colaborador = Colaborador(nome: dados['nome']);
         }
       });
+      iniciado = true;
       notifyListeners();
     }
   }

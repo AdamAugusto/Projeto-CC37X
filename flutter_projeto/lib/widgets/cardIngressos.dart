@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -124,12 +125,12 @@ class _CardIngressosState extends State<CardIngressos> {
             ),
             Container(
               alignment: Alignment(0.05, 0),
-              child: Text(
-                'IMAGEM',
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
+              child: widget.evento.imagem != null
+                  ? Image.file(
+                      File(widget.evento.imagem!),
+                      height: 30,
+                    )
+                  : null,
             ),
             Container(
               alignment: Alignment(1, -1),

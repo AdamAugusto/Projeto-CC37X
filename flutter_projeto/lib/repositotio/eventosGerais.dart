@@ -50,6 +50,8 @@ class EventosGerais extends ChangeNotifier {
         nome: dados['nome'],
         preco: dados['preco'],
         local: dados['local'],
+        placeId: dados['placeId'],
+        imagem: dados['imagem'],
       );
       var convidados =
           await db.collection('eventos/${event.id}/convidados').get();
@@ -76,6 +78,7 @@ class EventosGerais extends ChangeNotifier {
       snapShot.docs.forEach((event) {
         final dados = event.data();
         _tabelaMeus.add(Evento(
+          placeId: dados['placeId'],
           nome: dados['nome'],
           local: dados['local'],
           data: dados['data'],
@@ -83,6 +86,7 @@ class EventosGerais extends ChangeNotifier {
           criador: dados['criador'],
           ingressosIniciais: dados['ingressosIniciais'],
           ingressos: dados['ingressos'],
+          imagem: dados['imagem'],
         ));
       });
       notifyListeners();
@@ -101,6 +105,7 @@ class EventosGerais extends ChangeNotifier {
       snapshot.docs.forEach((event) {
         final dados = event.data();
         _tabelaComprados.add(Evento(
+          placeId: dados['placeId'],
           nome: dados['nome'],
           local: dados['local'],
           data: dados['data'],
@@ -108,6 +113,7 @@ class EventosGerais extends ChangeNotifier {
           criador: '0',
           ingressos: 0,
           ingressosIniciais: 0,
+          imagem: dados['imagem'],
         ));
       });
       notifyListeners();
@@ -117,14 +123,17 @@ class EventosGerais extends ChangeNotifier {
   adicionar(Evento evento) async {
     //_tabelaGerais.add(evento);
     //notifyListeners();
+
     var docRef = await db.collection('eventos').add({
       'nome': evento.nome,
       'local': evento.local,
+      'placeId': evento.placeId,
       'data': evento.data,
       'ingressosIniciais': evento.ingressosIniciais,
       'ingressos': evento.ingressos,
       'preco': evento.preco,
       'criador': evento.criador,
+      'imagem': evento.imagem
     });
     evento.id = docRef.id;
 
@@ -148,6 +157,7 @@ class EventosGerais extends ChangeNotifier {
         'local': evento.local,
         'data': evento.data,
         'preco': evento.preco,
+        'imagem': evento.imagem
       });
       _tabelaComprados.add(evento);
     }

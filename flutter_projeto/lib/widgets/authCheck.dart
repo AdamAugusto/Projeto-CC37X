@@ -26,11 +26,14 @@ class _AuthCheckState extends State<AuthCheck> {
       return LoginPage();
     else {
       col = Provider.of<ColaboradorRepositorio>(context);
-
-      if (col.colaborador.colaborador) {
-        return HomePageColaborador();
-      } else
-        return HomePage();
+      if (!col.iniciado)
+        return loading();
+      else {
+        if (col.colaborador.colaborador) {
+          return HomePageColaborador();
+        } else
+          return HomePage();
+      }
     }
   }
 

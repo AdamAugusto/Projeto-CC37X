@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_projeto/modelos/evento.dart';
 import 'package:flutter_projeto/paginas/comprarIngresso.dart';
 
 import 'package:flutter_projeto/repositotio/eventosGerais.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class CardGerais extends StatefulWidget {
@@ -38,22 +41,9 @@ class _CardGerais extends State<CardGerais> {
                 fontSize: 26,
               ),
             ),
-            trailing: PopupMenuButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.purple,
-              ),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  child: ListTile(
-                    title: Text('Editar'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ],
-            ),
+            trailing: widget.evento.imagem != null
+                ? Image.file(File(widget.evento.imagem!))
+                : null,
             contentPadding: EdgeInsets.only(left: 16),
             subtitle: Text(
               'Data: ${widget.evento.data}\n' +

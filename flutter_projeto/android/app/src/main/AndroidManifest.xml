@@ -4,6 +4,9 @@
         android:name="androidx.multidex.MultiDexApplication" 
         android:label="Projeto"
         android:icon="@mipmap/ic_launcher">
+        <meta-data 
+          android:name="com.google.android.geo.API_KEY" 
+          android:value="@string/ANDROID_MAPS_APIKEY"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -39,4 +42,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 </manifest>

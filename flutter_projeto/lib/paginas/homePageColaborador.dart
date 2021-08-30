@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_projeto/paginas/cadastrarEventoPage.dart';
-
 import 'package:flutter_projeto/repositotio/eventosGerais.dart';
 import 'package:flutter_projeto/services/auth_service.dart';
 import 'package:flutter_projeto/widgets/cardGerais.dart';
@@ -27,7 +25,6 @@ class _HomePageColaboradorState extends State<HomePageColaborador> {
   @override
   Widget build(BuildContext context) {
     eventosGerais = Provider.of<EventosGerais>(context);
-
     return DefaultTabController(
       length: 3,
       child: Scaffold(
